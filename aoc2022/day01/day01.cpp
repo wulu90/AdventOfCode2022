@@ -9,7 +9,7 @@
 #include <queue>
 
 int main() {
-    std::ifstream input("/home/wl/Desktop/AdventOfCode2022/aoc2022/day01/input");
+    std::ifstream input("day01input/input");
 
     std::string line;
 
