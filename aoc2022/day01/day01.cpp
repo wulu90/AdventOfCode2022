@@ -9,15 +9,20 @@
 #include <queue>
 
 int main() {
-    std::ifstream input("day01input/input");
+    std::ifstream input("input");
 
     std::string line;
 
     std::vector<int> sums;
     std::vector<int> calories;
 
-    while (std::getline(input, line)) {
-        if ((!input.eof() && line.empty()) || input.eof()) {
+    // because the last line of input is empty,
+    // if use while(getline(input, line)),
+    // when read the last line ,the eof bit will set, stream operator bool return false,
+    // the loop break immediately, then the last array of int not calculate
+    while (input.good()) {
+        std::getline(input, line);
+        if (line.empty()) {
             auto sum = std::accumulate(calories.begin(), calories.end(), 0);
             sums.push_back(sum);
             calories.clear();
@@ -26,17 +31,10 @@ int main() {
         }
     }
 
-    auto most = std::max_element(sums.begin(), sums.end());
+    std::sort(sums.begin(), sums.end());
+    std::cout << *sums.rbegin() << std::endl;
 
-    std::cout << *most << std::endl;
+    auto top3 = std::accumulate(sums.rbegin(), sums.rbegin() + 3, 0);
 
-    std::priority_queue<int> pq(sums.begin(), sums.end());
-
-    int top = 0;
-    for (int i = 0; i < 3; i++) {
-        top += pq.top();
-        pq.pop();
-    }
-
-    std::cout << top << std::endl;
+    std::cout << top3 << std::endl;
 }
