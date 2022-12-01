@@ -1,16 +1,14 @@
 #include <iostream>
 
+#include <algorithm>
 #include <fstream>
+#include <numeric>
 #include <string>
 #include <vector>
-#include <numeric>
-#include <algorithm>
 
 #include <queue>
 
-int main()
-{
-
+int main() {
     std::ifstream input("/home/wl/Desktop/AdventOfCode2022/aoc2022/day01/input");
 
     std::string line;
@@ -18,16 +16,12 @@ int main()
     std::vector<int> sums;
     std::vector<int> calories;
 
-    while (std::getline(input, line))
-    {
-        if ((!input.eof()&&line.empty())||input.eof())
-        {
+    while (std::getline(input, line)) {
+        if ((!input.eof() && line.empty()) || input.eof()) {
             auto sum = std::accumulate(calories.begin(), calories.end(), 0);
             sums.push_back(sum);
             calories.clear();
-        }
-        else
-        {
+        } else {
             calories.push_back(std::stoi(line));
         }
     }
@@ -36,14 +30,13 @@ int main()
 
     std::cout << *most << std::endl;
 
-    std::priority_queue<int> pq(sums.begin(),sums.end());
+    std::priority_queue<int> pq(sums.begin(), sums.end());
 
-    int top=0;
-    for(int i=0;i<3;i++){
-        top+=pq.top();
+    int top = 0;
+    for (int i = 0; i < 3; i++) {
+        top += pq.top();
         pq.pop();
     }
 
     std::cout << top << std::endl;
-
 }
