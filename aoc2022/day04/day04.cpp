@@ -2,6 +2,21 @@
 #include <iostream>
 #include <string>
 
+struct range {
+    int from;
+    int to;
+};
+
+bool section_contain(std::pair<range, range>&& ranges) {
+    auto [a, b] = ranges;
+    return (a.from <= b.from && a.to >= b.to) || (a.from >= b.from && a.to <= b.to);
+}
+
+bool overlap_atall(std::pair<range, range>&& ranges) {
+    auto [a, b] = ranges;
+    return !(a.to < b.from || a.from > b.to);
+}
+
 bool section_contain(int a, int b, int c, int d) {
     return (a <= c && b >= d) || (a >= c && b <= d);
 }
@@ -27,11 +42,19 @@ void part() {
         int c = std::stoi(line.substr(comma + 1, last_dash - comma - 1));
         int d = std::stoi(line.substr(last_dash + 1, line.size() - last_dash - 1));
 
-        if (section_contain(a, b, c, d)) {
+        // if (section_contain(a, b, c, d)) {
+        //     count_part1 += 1;
+        // }
+
+        // if (overlap_atall(a, b, c, d)) {
+        //     count_part2 += 1;
+        // }
+
+        if (section_contain({{a, b}, {c, d}})) {
             count_part1 += 1;
         }
 
-        if (overlap_atall(a, b, c, d)) {
+        if (overlap_atall({{a, b}, {c, d}})) {
             count_part2 += 1;
         }
     }
