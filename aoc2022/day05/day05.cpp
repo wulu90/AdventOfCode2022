@@ -9,16 +9,16 @@
 
 void build_stack(std::string& line, std::vector<std::deque<char>>& stacks) {
     size_t pos = 0;
-    while (pos < line.size()) {
-        size_t inx = line.find('[', pos);
+    while ((pos = line.find('[', pos)) != std::string::npos) {
+        // size_t inx = line.find('[', pos);
 
-        stacks[inx / 4].push_back(line[inx + 1]);    // pattern like  "[A] " ,so divide by 4;
+        stacks[pos / 4].push_back(line[pos + 1]);    // pattern like  "[A] " ,so divide by 4;
 
         pos += 3;
     }
 }
 
-int main() {
+void part1() {
     std::ifstream input("input");
     std::string line;
 
@@ -46,8 +46,8 @@ int main() {
         std::sscanf(line.c_str(), "move %d from %d to %d", &crate_count, &stack_from, &stack_to);
 
         for (int i = 0; i < crate_count; i++) {
-            stacks[stack_to].push_front(stacks[stack_from].front());
-            stacks[stack_from].pop_front();
+            stacks[stack_to - 1].push_front(stacks[stack_from - 1].front());
+            stacks[stack_from - 1].pop_front();
         }
     }
 
@@ -55,4 +55,8 @@ int main() {
         std::cout << stacks[i].front();
     }
     std::cout << std::endl;
+}
+
+int main() {
+    part1();
 }
