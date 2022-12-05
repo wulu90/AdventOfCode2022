@@ -13,11 +13,11 @@ void part1() {
 
     while (std::getline(input, line)) {
         std::set<char> first_half;
-        for (int i = 0; i < line.size() / 2; i++) {
+        for (size_t i = 0; i < line.size() / 2; i++) {
             first_half.insert(line[i]);
         }
         char item_type;
-        for (int i = line.size() / 2; i < line.size(); i++) {
+        for (size_t i = line.size() / 2; i < line.size(); i++) {
             if (first_half.find(line[i]) != first_half.end()) {
                 item_type = line[i];
                 break;
