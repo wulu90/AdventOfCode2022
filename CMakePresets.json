@@ -6,15 +6,24 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"Debug",
-                "CMAKE_CXX_COMPILER":"g++"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "name": "Linux_Release",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_COMPILER": "g++"
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "Linux_Debug",
-            "configurePreset": "Linux_Debug"
+            "name": "Linux_Release",
+            "configurePreset": "Linux_Release"
         }
     ]
 }
