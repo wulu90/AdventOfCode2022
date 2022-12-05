@@ -19,14 +19,12 @@ void part1() {
     std::ifstream input("input");
     std::string line;
 
-    std::vector<std::deque<char>> stacks;
     std::deque<char> ss;
     std::getline(input, line);
 
     int stack_size = (line.size() + 1) / 4;
-    for (int i = 0; i < stack_size; i++) {
-        stacks.push_back(ss);
-    }
+    std::vector<std::deque<char>> stacks(stack_size);
+
     build_stack(line, stacks);
 
     while (std::getline(input, line)) {
@@ -66,14 +64,12 @@ void part2() {
     std::ifstream input("input");
     std::string line;
 
-    std::vector<std::deque<char>> stacks;
     std::deque<char> ss;
     std::getline(input, line);
 
     int stack_size = (line.size() + 1) / 4;
-    for (int i = 0; i < stack_size; i++) {
-        stacks.push_back(ss);
-    }
+    std::vector<std::deque<char>> stacks(stack_size);
+
     build_stack(line, stacks);
 
     while (std::getline(input, line)) {
