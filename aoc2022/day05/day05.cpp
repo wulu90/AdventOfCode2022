@@ -1,11 +1,10 @@
 #include <deque>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stack>
 #include <string>
 #include <vector>
-
-#include <cstdio>
 
 void build_stack(std::string& line, std::vector<std::deque<char>>& stacks) {
     size_t pos = 0;
@@ -39,9 +38,17 @@ void part1() {
 
     std::getline(input, line);    // read blank line;
 
+    int crate_count, stack_from, stack_to;
+    std::string op;
+    std::istringstream iss;
     while (std::getline(input, line)) {
-        int crate_count, stack_from, stack_to;
-        std::sscanf(line.c_str(), "move %d from %d to %d", &crate_count, &stack_from, &stack_to);
+        iss.str(line);
+        iss >> op;
+        iss >> crate_count;
+        iss >> op;
+        iss >> stack_from;
+        iss >> op;
+        iss >> stack_to;
 
         for (int i = 0; i < crate_count; i++) {
             stacks[stack_to - 1].push_front(stacks[stack_from - 1].front());
@@ -78,9 +85,18 @@ void part2() {
 
     std::getline(input, line);    // read blank line;
 
+    int crate_count, stack_from, stack_to;
+    std::string op;
+    std::istringstream iss;
+
     while (std::getline(input, line)) {
-        int crate_count, stack_from, stack_to;
-        std::sscanf(line.c_str(), "move %d from %d to %d", &crate_count, &stack_from, &stack_to);
+        iss.str(line);
+        iss >> op;
+        iss >> crate_count;
+        iss >> op;
+        iss >> stack_from;
+        iss >> op;
+        iss >> stack_to;
 
         // moved crates stay in the same order, first move to the back of deque then move front of the deque
         for (int i = 0; i < crate_count; i++) {
