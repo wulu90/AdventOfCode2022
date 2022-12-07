@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -69,23 +70,27 @@ void add_file(std::shared_ptr<dir>& curr_dir, const std::string& line) {
     iss >> name;
     file f{name, size};
     curr_dir->files.push_back(f);
-    
+
     auto temp = curr_dir;
     edit_dir_size(curr_dir, size);
     curr_dir = temp;
 }
 
-void map_name_size(const std::shared_ptr<dir>& root, std::map<std::string, size_t>& map) {
+std::vector<size_t> walk_tree(const std::shared_ptr<dir>& root, std::function<bool(std::shared_ptr<dir>&)> f) {
     std::stack<std::shared_ptr<dir>> ds;
+    std::vector<size_t> result;
     ds.push(root);
     while (!ds.empty()) {
         auto dir = ds.top();
         ds.pop();
-        map.insert({dir->absolute_name, dir->size});
-        for (auto& d : dir->subdirs) {
-            ds.push(d);
+        if (f(dir)) {
+            result.push_back(dir->size);
         }
+        for (auto& d : dir->subdirs)
+            ds.push(d);
     }
+
+    return result;
 }
 
 void solve() {
@@ -120,26 +125,17 @@ void solve() {
         }
     }
 
-    std::map<std::string, size_t> name_size;
-    map_name_size(root, name_size);
-
-    std::vector<size_t> size_vec;
-    for (auto [a, b] : name_size) {
-        size_vec.push_back(b);
-    }
-
-    std::sort(size_vec.begin(), size_vec.end());
-
     // part1
-    auto it             = std::find_if(size_vec.begin(), size_vec.end(), [](size_t a) { return a > 100000; });
-    auto total_less100K = std::accumulate(size_vec.begin(), it, 0);
+    auto less100K_vec   = walk_tree(root, [](std::shared_ptr<dir>& d) { return d->size <= 100000; });
+    auto total_less100K = std::accumulate(less100K_vec.begin(), less100K_vec.end(), 0);
 
     // part2
     size_t disk_size = 70000000;
     size_t target    = 30000000;
 
     size_t need_size     = target - (disk_size - root->size);
-    auto smallest_to_del = std::find_if(size_vec.begin(), size_vec.end(), [&](size_t p) { return p >= need_size; });
+    auto to_del_vec      = walk_tree(root, [&](std::shared_ptr<dir>& d) { return d->size >= need_size; });
+    auto smallest_to_del = std::min_element(to_del_vec.begin(), to_del_vec.end());
 
     std::cout << total_less100K << std::endl;
     std::cout << *smallest_to_del << std::endl;
