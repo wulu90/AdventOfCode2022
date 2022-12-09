@@ -5,55 +5,43 @@
 #include <string>
 #include <vector>
 
-bool istouching(std::pair<int, int>& head, std::pair<int, int>& tail) {
-    if (head == tail)
-        return true;
-    bool istouching = false;
-    if (head.first == tail.first)    // same row
-    {
-        if (std::abs(head.second - tail.second) == 1)
-            istouching = true;
-    } else if (head.second == tail.second) {
-        if (std::abs(head.first - tail.first) == 1)
-            istouching = true;
-    } else {
-        if (std::abs(head.first - tail.first) == 1 && std::abs(head.second - tail.second) == 1)
-            istouching = true;
+void check_touching_and_move(std::pair<int, int>& head, std::pair<int, int>& tail) {
+    if (head != tail) {
+        if (head.first == tail.first)    // same row
+        {
+            if (std::abs(head.second - tail.second) > 1) {
+                tail.second += head.second > tail.second ? 1 : -1;
+            }
+        } else if (head.second == tail.second) {
+            if (std::abs(head.first - tail.first) > 1)
+                tail.first += head.first > tail.first ? 1 : -1;
+        } else {
+            if (!(std::abs(head.first - tail.first) == 1 && std::abs(head.second - tail.second) == 1)) {
+                tail.first += head.first > tail.first ? 1 : -1;
+                tail.second += head.second > tail.second ? 1 : -1;
+            }
+        }
     }
-
-    return istouching;
 }
 
 void right(std::pair<int, int>& head, std::pair<int, int>& tail) {
-    auto tmp = head;
     head.second += 1;
-    if (!istouching(head, tail)) {
-        tail = tmp;
-    }
+    check_touching_and_move(head, tail);
 }
 
 void left(std::pair<int, int>& head, std::pair<int, int>& tail) {
-    auto tmp = head;
     head.second -= 1;
-    if (!istouching(head, tail)) {
-        tail = tmp;
-    }
+    check_touching_and_move(head, tail);
 }
 
 void up(std::pair<int, int>& head, std::pair<int, int>& tail) {
-    auto tmp = head;
     head.first += 1;
-    if (!istouching(head, tail)) {
-        tail = tmp;
-    }
+    check_touching_and_move(head, tail);
 }
 
 void down(std::pair<int, int>& head, std::pair<int, int>& tail) {
-    auto tmp = head;
     head.first -= 1;
-    if (!istouching(head, tail)) {
-        tail = tmp;
-    }
+    check_touching_and_move(head, tail);
 }
 
 std::function<void(std::pair<int, int>& head, std::pair<int, int>& tail)> move_func(char d) {
