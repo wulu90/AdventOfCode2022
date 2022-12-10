@@ -12,21 +12,31 @@ int main() {
     std::vector<int> during_value;
     std::string instruction;
     int oprand;
-    std::istringstream iss;
+    // std::istringstream iss;
 
     int init_value = 1;
+    size_t empty_inx;
     while (std::getline(input, line)) {
-        iss.str(line);
-        iss >> instruction;
-        if (instruction == "addx") {
-            iss >> oprand;
+        // iss.str(line);
+        // iss >> instruction;
+        // if (instruction == "addx") {
+        //     iss >> oprand;
+        //     during_value.push_back(init_value);
+        //     during_value.push_back(init_value);
+        //     init_value += oprand;
+        // } else {
+        //     during_value.push_back(init_value);
+        // }
+        // iss.clear();
+
+        if ((empty_inx = line.find(' ')) != std::string::npos) {
+            oprand = std::stoi(line.substr(empty_inx + 1, line.size() - empty_inx - 1));
             during_value.push_back(init_value);
             during_value.push_back(init_value);
             init_value += oprand;
         } else {
             during_value.push_back(init_value);
         }
-        iss.clear();
     }
 
     int signal_strenghts = 0;
