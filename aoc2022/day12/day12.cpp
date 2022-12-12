@@ -22,7 +22,29 @@ vector<pair<int, int>> find_next_BFS(const vector<string>& heightmap, const pair
             continue;
 
         if (visited.find({row, col}) == visited.end()) {
-            if (heightmap[row][col] <= heightmap[curr.first][curr.second] || heightmap[row][col] == heightmap[curr.first][curr.second] + 1)
+            auto from = heightmap[curr.first][curr.second];
+            auto to   = heightmap[row][col];
+            if (to - from <= 1)
+                re.push_back({row, col});
+        }
+    }
+    return re;
+}
+
+vector<pair<int, int>> find_next_BFS_2(const vector<string>& heightmap, const pair<int, int>& curr, const set<pair<int, int>>& visited) {
+    vector<pair<int, int>> re;
+    int rownum = heightmap.size();
+    int colnum = heightmap.begin()->size();
+    for (auto [a, b] : dir) {
+        auto row = curr.first + a;
+        auto col = curr.second + b;
+        if (row < 0 || row >= rownum || col < 0 || col >= colnum)
+            continue;
+
+        if (visited.find({row, col}) == visited.end()) {
+            auto from = heightmap[curr.first][curr.second];
+            auto to   = heightmap[row][col];
+            if (from - to <= 1)
                 re.push_back({row, col});
         }
     }
@@ -31,7 +53,7 @@ vector<pair<int, int>> find_next_BFS(const vector<string>& heightmap, const pair
 
 void findpath_BFS(const vector<string>& heightmap, const pair<int, int>& start, const pair<int, int>& end) {
     set<pair<int, int>> visited;
-    queue<pair<pair<int, int>, int>> q;
+    queue<pair<pair<int, int>, int>> q;    // coord , step
     q.push({start, 0});
 
     while (q.front().first != end) {
@@ -47,11 +69,27 @@ void findpath_BFS(const vector<string>& heightmap, const pair<int, int>& start, 
     std::cout << q.front().second << std::endl;
 }
 
+void findpath_BFS_2(const vector<string>& heightmap, const pair<int, int>& start) {
+    set<pair<int, int>> visited;
+    queue<pair<pair<int, int>, int>> q;    // coord , step
+    q.push({start, 0});
+
+    while (heightmap[q.front().first.first][q.front().first.second] != 'a') {
+        auto& item = q.front();
+        q.pop();
+
+        for (auto p : find_next_BFS_2(heightmap, item.first, visited)) {
+            visited.insert(p);
+            q.push({p, item.second + 1});
+        }
+    }
+
+    std::cout << q.front().second << std::endl;
+}
+
 void part1() {
     ifstream input("input");
-
     vector<string> heightmap;
-
     string line;
 
     while (getline(input, line)) {
@@ -83,8 +121,43 @@ void part1() {
     findpath_BFS(heightmap, start, end);
 }
 
+void part2() {
+    ifstream input("input");
+    vector<string> heightmap;
+    string line;
+
+    while (getline(input, line)) {
+        heightmap.push_back(line);
+    }
+
+    pair<int, int> start, end;
+    size_t i = 0, j = 0;
+    bool find_s = false, find_e = false;
+    for (auto& s : heightmap) {
+        if ((j = s.find('S')) != string::npos) {
+            s[j]   = 'a';
+            start  = {i, j};
+            find_s = true;
+        }
+        if ((j = s.find('E')) != string::npos) {
+            s[j]   = 'z';
+            end    = {i, j};
+            find_e = true;
+        }
+        if (find_s && find_e)
+            break;
+        i += 1;
+    }
+
+    vector<pair<int, int>> path;
+    vector<vector<pair<int, int>>> path_all;
+
+    findpath_BFS_2(heightmap, end);
+}
+
 int main() {
     part1();
+    part2();
 }
 
 // some DFS code
