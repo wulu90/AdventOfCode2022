@@ -78,6 +78,25 @@ void part1() {
     cout << accumulate(right.begin(), right.end(), 0) << endl;
 }
 
+void part2() {
+    ifstream input("input");
+    string line;
+    vector<node> nv;
+    while (getline(input, line)) {
+        if (!line.empty())
+            nv.emplace_back(parse_node(line));
+    }
+    sort(nv.begin(), nv.end());
+    string str = "[[2]]";
+    node n1    = parse_node(str);
+    str        = "[[6]]";
+    node n2    = parse_node(str);
+    auto it1   = find_if_not(nv.begin(), nv.end(), [&](auto& p) { return p < n1; });
+    auto it2   = find_if_not(nv.begin(), nv.end(), [&](auto& p) { return p < n2; });
+    cout << (it1 - nv.begin() + 1) * (it2 - nv.begin() + 2) << endl;
+}
+
 int main() {
     part1();
+    part2();
 }
