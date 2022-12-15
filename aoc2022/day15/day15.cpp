@@ -93,6 +93,7 @@ void part1() {
             dup++;
         }
     }
+
     cout << ips_set.size() - dup << endl;
 }
 
@@ -275,21 +276,9 @@ void part2_op() {
 }
 
 int main() {
-    auto start = chrono::steady_clock::now();
     part1_1();
-    auto end = chrono::steady_clock::now();
-    auto d   = end - start;
-    cout << d.count() << endl;
 
-    start = chrono::steady_clock::now();
-    part1();
-    end = chrono::steady_clock::now();
-    d   = end - start;
-    cout << d.count() << endl;
+    // part1();
 
-    start = chrono::steady_clock::now();
     part2_op();
-    end = chrono::steady_clock::now();
-    d   = end - start;
-    cout << d.count() << endl;
 }

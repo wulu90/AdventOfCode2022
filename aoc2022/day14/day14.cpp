@@ -25,10 +25,7 @@ vector<coord> parse_rock_path(const string& line) {
         iss >> i;
         co.y = i;
         path.push_back(co);
-
-        if (!iss.eof()) {    // " -> "
-            iss.seekg(iss.tellg() + 4L);
-        }
+        iss.ignore(4);    // " -> "
     }
     return path;
 }
