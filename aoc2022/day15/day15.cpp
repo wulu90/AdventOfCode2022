@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <set>
@@ -21,6 +22,10 @@ struct sensor_beacon {
 
 int manhattan_distance(const sensor_beacon& sb) {
     return abs(sb.beacon.x - sb.sensor.x) + abs(sb.beacon.y - sb.sensor.y);
+}
+
+int manhattan_distance(const coord& a, const coord& b) {
+    return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
 vector<coord> impossible_pos(const sensor_beacon& sb, const int target) {
@@ -80,11 +85,67 @@ void part1() {
         }
     }
     set<coord> ips_set;
-    // 其实只有一个要去掉，大量时间花在构造set上
-    copy_if(impossible.begin(), impossible.end(), inserter(ips_set, ips_set.end()),
-            [&](auto& c) { return remove.find(c) == remove.end(); });
+    int dup = 0;
+    // too large, build set need so much time;
+    copy(impossible.begin(), impossible.end(), inserter(ips_set, ips_set.end()));
+    for (auto& r : remove) {
+        if (ips_set.find(r) != ips_set.end()) {
+            dup++;
+        }
+    }
+    cout << ips_set.size() - dup << endl;
+}
 
-    cout << ips_set.size() << endl;
+void part1_1() {
+    ifstream input("input");
+    vector<sensor_beacon> sbs;
+    string line;
+    while (getline(input, line)) {
+        sbs.push_back(parse_sb(line));
+    }
+
+    static const int target = 2000000;
+    set<coord> dup;
+    for (auto& sb : sbs) {
+        if (sb.beacon.y == target)
+            dup.insert(sb.beacon);
+    }
+
+    int xmin = 0xffffffff;
+    int xmax = 0;
+
+    for (auto& sb : sbs) {
+        int md = manhattan_distance(sb);
+
+        if ((sb.sensor.y <= target && sb.sensor.y + md >= target) || (sb.sensor.y >= target && sb.sensor.y - md <= target)) {
+            int xr = md - abs(target - sb.sensor.y);
+            if (sb.sensor.x + xr > xmax)
+                xmax = sb.sensor.x + xr;
+            if (sb.sensor.x - xr < xmin)
+                xmin = sb.sensor.x - xr;
+        }
+    }
+
+    vector<int> mds;
+    for (auto& sb : sbs) {
+        mds.push_back(manhattan_distance(sb));
+    }
+
+    int count = 0;
+    for (int x = xmin; x <= xmax; x++) {
+        // bool f = false;
+        coord c{x, target};
+        if (dup.find(c) != dup.end())
+            continue;
+        for (size_t i = 0; i < sbs.size(); i++) {
+            if (manhattan_distance(c, sbs[i].sensor) <= mds[i]) {
+                count++;
+                break;
+            }
+        }
+    }
+
+    cout << count << endl;
 }
 
 void part2() {
@@ -155,7 +216,7 @@ bool compute(vector<int>& v) {
         }
         if (v.size() != tmp.size()) {
             swap(v, tmp);
-        } else {
+        } else {    // can't deduce size mean there is a gap beteen two ranges ,so found it
             found = true;
             break;
         }
@@ -214,6 +275,21 @@ void part2_op() {
 }
 
 int main() {
+    auto start = chrono::steady_clock::now();
+    part1_1();
+    auto end = chrono::steady_clock::now();
+    auto d   = end - start;
+    cout << d.count() << endl;
+
+    start = chrono::steady_clock::now();
     part1();
+    end = chrono::steady_clock::now();
+    d   = end - start;
+    cout << d.count() << endl;
+
+    start = chrono::steady_clock::now();
     part2_op();
+    end = chrono::steady_clock::now();
+    d   = end - start;
+    cout << d.count() << endl;
 }
