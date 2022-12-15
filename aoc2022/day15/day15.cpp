@@ -80,12 +80,140 @@ void part1() {
         }
     }
     set<coord> ips_set;
+    // 其实只有一个要去掉，大量时间花在构造set上
     copy_if(impossible.begin(), impossible.end(), inserter(ips_set, ips_set.end()),
             [&](auto& c) { return remove.find(c) == remove.end(); });
 
     cout << ips_set.size() << endl;
 }
 
+void part2() {
+    ifstream input("input");
+    vector<sensor_beacon> sbs;
+    string line;
+    while (getline(input, line)) {
+        sbs.push_back(parse_sb(line));
+    }
+    bool found     = false;
+    long frequency = 0;
+    vector<int> mds;
+    for (auto& sb : sbs) {
+        mds.push_back(manhattan_distance(sb));
+    }
+    for (int i = 0; i < 4000000; i++) {
+        for (int j = 0; j < 4000000; j++) {
+            unsigned long flag = 1UL;
+
+            for (size_t k = 0; k < sbs.size(); k++) {
+                if (abs(sbs[k].sensor.x - i) + abs(sbs[k].sensor.y - j) > mds[k]) {
+                    flag <<= 1;
+                } else {
+                    break;
+                }
+            }
+
+            if (flag == 1UL << sbs.size()) {
+                found     = true;
+                frequency = static_cast<long>(i) * 4000000 + j;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    cout << frequency << endl;
+}
+
+bool is_overlap(int a, int b, int c, int d) {
+    return !(b < c || a > d);
+}
+
+pair<int, int> extend(int a, int b, int c, int d) {
+    return {min(a, c), max(b, d)};
+}
+
+bool compute(vector<int>& v) {
+    auto s1 = v[0];
+    auto s2 = v[1];
+
+    vector<int> tmp;
+    bool found = false;
+    while (v.size() > 1) {
+        tmp.clear();
+        int range_count = v.size() / 2;
+
+        for (int i = 0; i < range_count; i++) {
+            if (is_overlap(s1, s2, v[i * 2], v[i * 2 + 1])) {
+                auto ext = extend(s1, s2, v[i * 2], v[i * 2 + 1]);
+                s1       = ext.first;
+                s2       = ext.second;
+            } else {
+                tmp.push_back(v[i * 2]);
+                tmp.push_back(v[i * 2 + 1]);
+            }
+        }
+        if (v.size() != tmp.size()) {
+            swap(v, tmp);
+        } else {
+            found = true;
+            break;
+        }
+    }
+    if (found) {
+        v.clear();
+        v.insert(v.end(), {s1, s2});
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void part2_op() {
+    ifstream input("input");
+    vector<sensor_beacon> sbs;
+    string line;
+    while (getline(input, line)) {
+        sbs.push_back(parse_sb(line));
+    }
+
+    vector<vector<int>> overlaps(4000000 + 1);
+
+    for (auto& sb : sbs) {
+        int md = manhattan_distance(sb);
+
+        int start_y = sb.sensor.y - md > 0 ? sb.sensor.y - md : 0;
+        int end_y   = sb.sensor.y + md > 4000000 ? 4000000 : sb.sensor.y + md;
+
+        for (int i = start_y; i <= end_y; i++) {
+            int d       = md - abs(i - sb.sensor.y);
+            int start_x = sb.sensor.x - d > 0 ? sb.sensor.x - d : 0;
+            int end_x   = sb.sensor.x + d > 4000000 ? 4000000 : sb.sensor.x + d;
+
+            overlaps[i].push_back(start_x);
+            overlaps[i].push_back(end_x);
+        }
+    }
+
+    long y = 0;
+
+    for (int i = 0; i < 4000000; i++) {
+        if (compute(overlaps[i])) {
+            y = i;
+            break;
+        }
+    }
+    long x = 0;
+    if (overlaps[y][0] == 0) {
+        x = overlaps[y][1] + 1;
+    }
+    if (overlaps[y][1] == 4000000) {
+        x = overlaps[y][0] - 1;
+    }
+    cout << x * 4000000 + y << endl;
+}
+
 int main() {
     part1();
+    part2_op();
 }
