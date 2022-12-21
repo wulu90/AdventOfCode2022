@@ -1,0 +1,2 @@
+add_executable(day21 day21.cpp)
+file(COPY input DESTINATION ".")
