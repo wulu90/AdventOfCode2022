@@ -113,7 +113,6 @@ void part1_op() {
     node_op a(str_int["AA"]);
     q.push(a);
     for (int i = 1; i < 30; i++) {
-        cout << i << endl;
         size_t qsize = q.size();
         for (size_t j = 0; j < qsize; j++) {
             auto n = q.front();
@@ -146,6 +145,112 @@ void part1_op() {
     }
 
     cout << max << endl;
+}
+
+void part2() {
+    ifstream input("input");
+    map<string, shared_ptr<valve>> valmap;
+
+    string line;
+    while (getline(input, line)) {
+        parse_valve(line, valmap);
+    }
+
+    map<string, char> str_int;
+    char count = 1;
+    for (auto [k, v] : valmap) {
+        str_int.insert({k, count});
+        count++;
+    }
+    map<char, valve_op> valopmap;
+    for (auto [k, v] : valmap) {
+        valve_op vop(str_int[k]);
+        vop.rate    = v->rate;
+        vop.leadnum = v->leads.size();
+        for (size_t i = 0; i < v->leads.size(); i++) {
+            vop.leads[i] = str_int[v->leads[i]->label];
+        }
+        valopmap.insert({vop.id, vop});
+    }
+    queue<node_op> q;
+    node_op a(str_int["AA"]);
+    q.push(a);
+    for (int i = 1; i < 26; i++) {
+        size_t qsize = q.size();
+        for (size_t j = 0; j < qsize; j++) {
+            auto n = q.front();
+            auto v = valopmap[n.curr];
+
+            if (v.rate > 0 && (n.opened & (1L << v.id)) == 0) {
+                node_op tmp(n.curr);
+                tmp.pressures = n.pressures + v.rate * (30 - i);
+                tmp.opened    = n.opened ^ (1L << v.id);
+                q.push(tmp);
+            }
+
+            for (int k = 0; k < v.leadnum; k++) {
+                if (n.prev != v.leads[k]) {
+                    node_op tmp(v.leads[k]);
+                    tmp.opened    = n.opened;
+                    tmp.pressures = n.pressures;
+                    tmp.prev      = n.curr;
+                    q.push(tmp);
+                }
+            }
+            q.pop();
+        }
+    }
+
+    int max1        = 0;
+    int max1_opened = 0;
+    while (!q.empty()) {
+        if (q.front().pressures > max1) {
+            max1        = q.front().pressures;
+            max1_opened = q.front().opened;
+        }
+        q.pop();
+    }
+    cout << max1 << endl;
+    // queue<node_op> q2;
+    // node_op a(str_int["AA"]);
+    q.push(a);
+    for (int i = 1; i < 26; i++) {
+        size_t qsize = q.size();
+        for (size_t j = 0; j < qsize; j++) {
+            auto n = q.front();
+            auto v = valopmap[n.curr];
+
+            if (v.rate > 0 && (n.opened & (1L << v.id)) == 0) {
+                node_op tmp(n.curr);
+                tmp.pressures = n.pressures + v.rate * (30 - i);
+                tmp.opened    = n.opened ^ (1L << v.id);
+                q.push(tmp);
+            }
+
+            for (int k = 0; k < v.leadnum; k++) {
+                if (n.prev != v.leads[k] && (max1_opened & (1L << v.leads[k])) == 0) {
+                    node_op tmp(v.leads[k]);
+                    tmp.opened    = n.opened;
+                    tmp.pressures = n.pressures;
+                    tmp.prev      = n.curr;
+                    q.push(tmp);
+                }
+            }
+            q.pop();
+        }
+    }
+
+    int max2 = 0;
+    // int max1_opened;
+    while (!q.empty()) {
+        if (q.front().pressures > max1) {
+            max2 = q.front().pressures;
+            // max1_opened = q.front().opened;
+        }
+        q.pop();
+    }
+    cout << max2 << endl;
+    cout << max1 + max2 << endl;
 }
 
 void part1() {
@@ -199,4 +304,5 @@ void part1() {
 
 int main() {
     part1_op();
+    part2();
 }
