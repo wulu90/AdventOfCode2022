@@ -137,6 +137,7 @@ void part1_op() {
             q.pop();
         }
     }
+
     int max = 0;
     while (!q.empty()) {
         if (q.front().pressures > max)
@@ -183,7 +184,7 @@ void part2() {
 
             if (v.rate > 0 && (n.opened & (1L << v.id)) == 0) {
                 node_op tmp(n.curr);
-                tmp.pressures = n.pressures + v.rate * (30 - i);
+                tmp.pressures = n.pressures + v.rate * (26 - i);
                 tmp.opened    = n.opened ^ (1L << v.id);
                 q.push(tmp);
             }
@@ -201,56 +202,29 @@ void part2() {
         }
     }
 
-    int max1        = 0;
-    int max1_opened = 0;
+    // only highest pressures,dont concern what steps to get there
+    map<int64_t, int> opened_highest;
+
     while (!q.empty()) {
-        if (q.front().pressures > max1) {
-            max1        = q.front().pressures;
-            max1_opened = q.front().opened;
+        if (q.front().opened != 0 && q.front().pressures > opened_highest[q.front().opened]) {
+            opened_highest[q.front().opened] = q.front().pressures;
         }
         q.pop();
     }
-    cout << max1 << endl;
-    // queue<node_op> q2;
-    // node_op a(str_int["AA"]);
-    q.push(a);
-    for (int i = 1; i < 26; i++) {
-        size_t qsize = q.size();
-        for (size_t j = 0; j < qsize; j++) {
-            auto n = q.front();
-            auto v = valopmap[n.curr];
 
-            if (v.rate > 0 && (n.opened & (1L << v.id)) == 0) {
-                node_op tmp(n.curr);
-                tmp.pressures = n.pressures + v.rate * (30 - i);
-                tmp.opened    = n.opened ^ (1L << v.id);
-                q.push(tmp);
-            }
+    int max = 0;
 
-            for (int k = 0; k < v.leadnum; k++) {
-                if (n.prev != v.leads[k] && (max1_opened & (1L << v.leads[k])) == 0) {
-                    node_op tmp(v.leads[k]);
-                    tmp.opened    = n.opened;
-                    tmp.pressures = n.pressures;
-                    tmp.prev      = n.curr;
-                    q.push(tmp);
+    for (auto i = opened_highest.begin(); i != opened_highest.end(); i++) {
+        for (auto j = next(i, 1); j != opened_highest.end(); j++) {
+            if ((i->first & j->first) == 0) {
+                if (i->second + j->second > max) {
+                    max = i->second + j->second;
                 }
             }
-            q.pop();
         }
     }
 
-    int max2 = 0;
-    // int max1_opened;
-    while (!q.empty()) {
-        if (q.front().pressures > max1) {
-            max2 = q.front().pressures;
-            // max1_opened = q.front().opened;
-        }
-        q.pop();
-    }
-    cout << max2 << endl;
-    cout << max1 + max2 << endl;
+    cout << max << endl;
 }
 
 void part1() {
