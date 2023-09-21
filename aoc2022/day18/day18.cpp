@@ -45,6 +45,9 @@ void part1_op() {
         cubes.insert({x, y, z});
     }
 
+    // if a cube has a neighbor in one direction (a cube have six dirction), they have same panel
+    // it remove by one ,it's neighbor remove by one
+
     int allsides = 0;
     for (auto& c : cubes) {
         int six_sides = 6;
@@ -77,6 +80,10 @@ void part2() {
     auto in_boundary = [lo, up](const cube& c) -> bool {
         return c.x >= lo && c.y >= lo && c.z >= lo && c.x <= up && c.y <= up && c.z <= up;
     };
+
+    // flood fill algotithm
+    // find all cubes out of the input cubes in the boundary
+    // a i_cube has neighbor in o_cubes, it have a direction toward to outside
 
     cube sc(lo, lo, lo);    // flood fill start
 
