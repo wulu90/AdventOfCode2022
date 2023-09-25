@@ -199,9 +199,130 @@ void part1() {
     cout << total << endl;
 }
 
-void part2() {}
+void part2() {
+    ifstream input("input");
+    string line;
+
+    vector<blueprint> bps;
+
+    int total = 1;
+
+    while (getline(input, line)) {
+        bps.push_back(parse_line(line));
+    }
+
+    auto theoretical_max = [](int time_left) { return (time_left * (time_left - 1)) / 2; };
+
+    for (auto& bp : bps | ranges::views::take(3)) {
+        int curr_max = 0;
+
+        set<state> states;
+
+        states.insert({0, 0, 0, 0, 1, 0, 0, 0});
+
+        int ore_max = max(bp.ore_cost, bp.clay_cost);
+        ore_max     = max(ore_max, bp.obsidian_costs.first);
+        ore_max     = max(ore_max, bp.geode_costs.first);
+
+        int clay_max = bp.obsidian_costs.second;
+        int obsi_max = bp.geode_costs.second;
+
+        for (int i = 1; i <= 32; i++) {
+            set<state> new_state;
+
+            int ore_max_consumed  = ore_max * (32 - i);
+            int clay_max_consumed = clay_max * (32 - i);
+            int obsi_max_consumed = obsi_max * (32 - i);
+
+            for (auto& st : states) {
+                if (st.geode + theoretical_max(32 - i) < curr_max) {
+                    continue;
+                }
+
+                int ore_p  = st.ore_robot;
+                int clay_p = st.clay_robot;
+                int obsi_p = st.obsidian_robot;
+
+                // build geode robot
+                if (st.ore >= bp.geode_costs.first && st.obsidian >= bp.geode_costs.second) {
+                    int ore_new_count  = st.ore - bp.geode_costs.first + ore_p;
+                    int obsi_new_count = st.obsidian - bp.geode_costs.second + obsi_p;
+                    int clay_new_count = st.clay + clay_p;
+
+                    ore_new_count  = min(ore_new_count, ore_max_consumed);
+                    clay_new_count = min(clay_new_count, clay_max_consumed);
+                    obsi_new_count = min(obsi_new_count, obsi_max_consumed);
+
+                    int geode_new_count = st.geode + (32 - i);
+                    new_state.insert({
+                        ore_new_count, clay_new_count, obsi_new_count, geode_new_count, st.ore_robot, st.clay_robot, st.obsidian_robot,
+                        st.geode_robot,    // todo +1
+                    });
+                    curr_max = max(geode_new_count, curr_max);
+                }
+
+                // build ore robot
+                if (st.ore_robot < ore_max && st.ore >= bp.ore_cost) {
+                    int ore_count  = st.ore - bp.ore_cost + ore_p;
+                    int clay_count = st.clay + clay_p;
+                    int obsi_count = st.obsidian + obsi_p;
+
+                    ore_count  = min(ore_count, ore_max_consumed);
+                    clay_count = min(clay_count, clay_max_consumed);
+                    obsi_count = min(obsi_count, obsi_max_consumed);
+
+                    new_state.insert(
+                        {ore_count, clay_count, obsi_count, st.geode, st.ore_robot + 1, st.clay_robot, st.obsidian_robot, st.geode_robot});
+                }
+
+                // build clay robot
+                if (st.clay_robot < clay_max && st.ore >= bp.clay_cost) {
+                    int ore_count  = st.ore - bp.clay_cost + ore_p;
+                    int clay_count = st.clay + clay_p;
+                    int obsi_count = st.obsidian + obsi_p;
+
+                    ore_count  = min(ore_count, ore_max_consumed);
+                    clay_count = min(clay_count, clay_max_consumed);
+                    obsi_count = min(obsi_count, obsi_max_consumed);
+
+                    new_state.insert(
+                        {ore_count, clay_count, obsi_count, st.geode, st.ore_robot, st.clay_robot + 1, st.obsidian_robot, st.geode_robot});
+                }
+
+                // build obsidian robot
+                if (st.obsidian_robot < obsi_max && st.ore >= bp.obsidian_costs.first && st.clay >= bp.obsidian_costs.second) {
+                    int ore_count  = st.ore - bp.obsidian_costs.first + ore_p;
+                    int clay_count = st.clay - bp.obsidian_costs.second + clay_p;
+                    int obsi_count = st.obsidian + obsi_p;
+
+                    ore_count  = min(ore_count, ore_max_consumed);
+                    clay_count = min(clay_count, clay_max_consumed);
+                    obsi_count = min(obsi_count, obsi_max_consumed);
+
+                    new_state.insert(
+                        {ore_count, clay_count, obsi_count, st.geode, st.ore_robot, st.clay_robot, st.obsidian_robot + 1, st.geode_robot});
+                }
+
+                int ore_count  = st.ore + ore_p;
+                int clay_count = st.clay + clay_p;
+                int obsi_count = st.obsidian + obsi_p;
+
+                ore_count  = min(ore_count, ore_max_consumed);
+                clay_count = min(clay_count, clay_max_consumed);
+                obsi_count = min(obsi_count, obsi_max_consumed);
+
+                new_state.insert(
+                    {ore_count, clay_count, obsi_count, st.geode, st.ore_robot, st.clay_robot, st.obsidian_robot, st.geode_robot});
+            }
+            states = new_state;
+        }
+
+        total *= curr_max;
+    }
+    cout << total << endl;
+}
 
 int main() {
     part1();
-    // part2();
+    part2();
 }
