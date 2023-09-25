@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -9,11 +10,15 @@ void part1() {
     ifstream input("input");
     string line;
     vector<string> snafus;
-    size_t maxsize = 0;
     while (getline(input, line)) {
         snafus.push_back(line);
-        if (line.size() > maxsize)
-            maxsize = line.size();
+    }
+
+    size_t maxsize = 0;
+
+    for (auto& s : snafus) {
+        if (s.size() > maxsize)
+            maxsize = s.size();
     }
 
     map<char, int> smap{{'2', 2}, {'1', 1}, {'0', 0}, {'-', -1}, {'=', -2}};
@@ -40,8 +45,9 @@ void part1() {
         re_tmp.push_back(srmap[mod]);
     }
 
-    string result(re_tmp.rbegin(), re_tmp.rend());
-    cout << result << endl;
+    // string result(re_tmp.rbegin(), re_tmp.rend());
+    reverse(re_tmp.begin(), re_tmp.end());
+    cout << re_tmp << endl;
 }
 
 int main() {
