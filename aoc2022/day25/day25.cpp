@@ -36,12 +36,10 @@ void part1() {
         if (mod > 2) {
             mod = mod - 5;
             tmp = tmp / 5 + 1;
-        } else if (mod >= -2 && mod <= 2) {
-            tmp = tmp / 5;
         } else {
-            mod = mod + 5;
-            tmp = tmp / 5 - 1;
+            tmp = tmp / 5;
         }
+
         re_tmp.push_back(srmap[mod]);
     }
 
